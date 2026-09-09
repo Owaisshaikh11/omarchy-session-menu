@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "id": "owaiss.session-menu",
+  "name": "Session Menu",
+  "version": "1.0.0",
+  "author": "Owais Shaikh",
+  "license": "MIT",
+  "description": "Elegant, theme-aware popout session and power menu for Omarchy with keyboard navigation and bar launcher.",
+  "kinds": [
+    "bar-widget",
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "barWidget": "BarWidget.qml",
+    "overlay": "SessionMenu.qml"
+  },
+  "barWidget": {
+    "displayName": "Session Menu",
+    "description": "Power and session menu launcher button",
+    "category": "System",
+    "defaultSection": "right",
+    "allowMultiple": false,
+    "defaults": {
+      "cardSize": 96,
+      "confirmDestructive": true,
+      "showBadges": true,
+      "highlightShutdown": true
+    },
+    "schema": [
+      {
+        "key": "cardSize",
+        "type": "integer",
+        "label": "Card size",
+        "description": "Width and height of each action card in logical pixels.",
+        "min": 72,
+        "max": 128,
+        "step": 4,
+        "defaultValue": 96
+      },
+      {
+        "key": "confirmDestructive",
+        "type": "boolean",
+        "label": "Confirm destructive actions",
+        "description": "Require pressing again or clicking to confirm Shutdown, Reboot, or Log Out.",
+        "defaultValue": true
+      },
+      {
+        "key": "showBadges",
+        "type": "boolean",
+        "label": "Show number badges",
+        "description": "Show hotkey badges (1, 2, 3...) on action cards.",
+        "defaultValue": true
+      },
+      {
+        "key": "highlightShutdown",
+        "type": "boolean",
+        "label": "Highlight shutdown",
+        "description": "Highlight the Shutdown button with theme accent/danger color.",
+        "defaultValue": true
+      }
+    ]
+  }
+}
