@@ -216,6 +216,21 @@ Item {
               readonly property bool isHighlighted: root.highlightShutdown && modelData.highlight === true
               readonly property bool isHovered: cardMouseArea.containsMouse
 
+              readonly property color highlightBg: {
+                if (modelData.highlightColor && String(modelData.highlightColor).length > 0) {
+                  return Qt.color(modelData.highlightColor)
+                }
+                return Color.urgent
+              }
+
+              readonly property real highlightLum: (highlightBg.r * 0.299 + highlightBg.g * 0.587 + highlightBg.b * 0.114)
+              readonly property color highlightFg: {
+                if (modelData.highlightTextColor && String(modelData.highlightTextColor).length > 0) {
+                  return Qt.color(modelData.highlightTextColor)
+                }
+                return highlightLum > 0.55 ? "#161616" : "#ffffff"
+              }
+
               width: root.cardSize
               height: root.cardSize
 
@@ -230,14 +245,14 @@ Item {
 
                 color: {
                   if (cardItem.isConfirming) return Color.urgent
-                  if (cardItem.isHighlighted) return "#f38ba8" // Coral / red accent as in screenshot
+                  if (cardItem.isHighlighted) return cardItem.highlightBg
                   if (cardItem.isHovered || cardItem.isFocused) return Util.alpha(Color.foreground, 0.12)
                   return Util.alpha(Color.foreground, 0.05)
                 }
 
                 border.color: {
                   if (cardItem.isConfirming) return Color.urgent
-                  if (cardItem.isHighlighted) return "#f38ba8"
+                  if (cardItem.isHighlighted) return cardItem.highlightBg
                   if (cardItem.isHovered || cardItem.isFocused) return Util.alpha(Color.accent, 0.8)
                   return Util.alpha(Color.foreground, 0.08)
                 }
@@ -260,7 +275,9 @@ Item {
                   radius: 4
 
                   color: {
-                    if (cardItem.isHighlighted && !cardItem.isConfirming) return Util.alpha("#450a0a", 0.18)
+                    if (cardItem.isHighlighted && !cardItem.isConfirming) {
+                      return cardItem.highlightLum > 0.55 ? Util.alpha("#000000", 0.18) : Util.alpha("#ffffff", 0.22)
+                    }
                     return Util.alpha(Color.background, 0.7)
                   }
 
@@ -272,7 +289,7 @@ Item {
                     font.pixelSize: 10
                     font.weight: Font.Bold
                     color: {
-                      if (cardItem.isHighlighted && !cardItem.isConfirming) return "#450a0a"
+                      if (cardItem.isHighlighted && !cardItem.isConfirming) return cardItem.highlightFg
                       return Color.foreground
                     }
                   }
@@ -291,7 +308,7 @@ Item {
                     font.pixelSize: 26
                     color: {
                       if (cardItem.isConfirming) return "#ffffff"
-                      if (cardItem.isHighlighted) return "#450a0a"
+                      if (cardItem.isHighlighted) return cardItem.highlightFg
                       return Color.menu.text
                     }
                   }
@@ -305,7 +322,7 @@ Item {
                     font.weight: Font.Medium
                     color: {
                       if (cardItem.isConfirming) return "#ffffff"
-                      if (cardItem.isHighlighted) return "#450a0a"
+                      if (cardItem.isHighlighted) return cardItem.highlightFg
                       return Color.menu.text
                     }
                   }

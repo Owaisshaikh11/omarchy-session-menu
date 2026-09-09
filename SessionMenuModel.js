@@ -9,19 +9,28 @@ function stripJsonc(raw) {
 function defaultActions() {
   return [
     {
-      id: "lock-suspend",
-      label: "Lock & Suspend",
-      icon: "\udb81\udcb2", // 󰒲
+      id: "lock",
+      label: "Lock",
+      icon: "\uf023", // 
       key: "1",
-      command: "omarchy system lock && systemctl suspend",
+      command: "omarchy system lock",
+      destructive: false,
+      highlight: false
+    },
+    {
+      id: "suspend",
+      label: "Suspend",
+      icon: "\udb81\udcb2", // 󰒲
+      key: "2",
+      command: "systemctl suspend",
       destructive: false,
       highlight: false
     },
     {
       id: "logout",
-      label: "Log Out",
+      label: "Logout",
       icon: "\udb80\udf43", // 󰍃
-      key: "2",
+      key: "3",
       command: "omarchy system logout",
       destructive: true,
       highlight: false
@@ -30,28 +39,19 @@ function defaultActions() {
       id: "reboot",
       label: "Reboot",
       icon: "\udb81\udf09", // 󰜉
-      key: "3",
+      key: "4",
       command: "omarchy system reboot",
       destructive: true,
       highlight: false
     },
     {
       id: "shutdown",
-      label: "Shut Down",
+      label: "Shutdown",
       icon: "\uf011", // 
-      key: "4",
+      key: "5",
       command: "omarchy system shutdown",
       destructive: true,
       highlight: true
-    },
-    {
-      id: "hibernate",
-      label: "Hibernate",
-      icon: "\udb81\udf01", // 󰤁
-      key: "5",
-      command: "systemctl hibernate",
-      destructive: true,
-      highlight: false
     }
   ]
 }
@@ -66,7 +66,9 @@ function normalizeAction(raw, index) {
     key: keyNum,
     command: item.command || "",
     destructive: item.destructive !== undefined ? item.destructive : false,
-    highlight: item.highlight !== undefined ? item.highlight : false
+    highlight: item.highlight !== undefined ? item.highlight : false,
+    highlightColor: item.highlightColor || "",
+    highlightTextColor: item.highlightTextColor || ""
   }
 }
 
