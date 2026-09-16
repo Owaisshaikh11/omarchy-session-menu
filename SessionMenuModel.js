@@ -189,6 +189,7 @@ function parseConfig(rawJsonc) {
   var defaultOptions = {
     showUptime: true,
     confirmDestructive: true,
+    confirmDuration: 3,
     showBadges: true,
     highlightShutdown: true,
     cardSize: 96
@@ -211,9 +212,17 @@ function parseConfig(rawJsonc) {
     }
   }
 
+  var durationVal = 3
+  if (parsed.confirmDuration !== undefined) {
+    durationVal = Math.max(1, Math.min(30, Number(parsed.confirmDuration) || 3))
+  } else if (parsed.confirmSeconds !== undefined) {
+    durationVal = Math.max(1, Math.min(30, Number(parsed.confirmSeconds) || 3))
+  }
+
   var options = {
     showUptime: parsed.showUptime !== undefined ? parsed.showUptime : true,
     confirmDestructive: parsed.confirmDestructive !== undefined ? parsed.confirmDestructive : true,
+    confirmDuration: durationVal,
     showBadges: parsed.showBadges !== undefined ? parsed.showBadges : true,
     highlightShutdown: parsed.highlightShutdown !== undefined ? parsed.highlightShutdown : true,
     cardSize: parsed.cardSize || 96
@@ -247,8 +256,12 @@ function formatUptime(rawSeconds) {
   var mins = Math.floor((totalSec % 3600) / 60)
   var days = Math.floor(hours / 24)
   hours = hours % 24
-  if (days > 0) return days + "d " + hours + "h"
-  if (hours > 0) return hours + "h " + mins + "m"
+  if (days > 0) {
+    return hours > 0 ? (days + "d " + hours + "h") : (days + "d")
+  }
+  if (hours > 0) {
+    return mins > 0 ? (hours + "h " + mins + "m") : (hours + "h")
+  }
   if (mins > 0) return mins + "m"
   return "< 1m"
 }
@@ -262,6 +275,7 @@ function sampleConfigJsonc() {
     '  // Optional display preferences',
     '  "showUptime": true,',
     '  "confirmDestructive": true,',
+    '  "confirmDuration": 3,  // Countdown duration in seconds (e.g. 2, 3, 5)',
     '  "showBadges": true,',
     '  "highlightShutdown": true,',
     '  "cardSize": 96,',

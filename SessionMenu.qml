@@ -19,12 +19,13 @@ Item {
   property var actions: Model.defaultActions()
   property int focusedIndex: -1
   property int confirmingIndex: -1
-  property int confirmSeconds: 3
+  property real confirmProgress: 1.0
   property string uptimeString: ""
 
   // Configurable options
   property int cardSize: 96
   property bool confirmDestructive: true
+  property int confirmDuration: 3
   property bool showBadges: true
   property bool highlightShutdown: true
   property bool showUptime: true
@@ -36,18 +37,16 @@ Item {
 
   function open(payloadJson) {
     root.opened = true
-    root.confirmingIndex = -1
-    root.confirmSeconds = 3
+    root.cancelConfirmation()
     root.focusedIndex = -1
     if (root.showUptime) {
-      uptimeFile.reload()
+      uptimeProc.running = true
     }
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
 
   function close() {
-    root.confirmingIndex = -1
-    confirmTimer.stop()
+    root.cancelConfirmation()
     root.opened = false
     if (root.shell && typeof root.shell.hide === "function") {
       root.shell.hide(root.manifest ? root.manifest.id : "owaiss.session-menu")
@@ -59,15 +58,10 @@ Item {
     else root.open("{}")
   }
 
-  function updateUptime() {
-    var raw = ""
-    try {
-      if (typeof uptimeFile.text === "function") raw = uptimeFile.text()
-      else if (uptimeFile.text) raw = String(uptimeFile.text)
-    } catch (e) { raw = "" }
-
-    if (!raw) return
-    var parts = raw.trim().split(" ")
+  function parseUptimeRaw(raw) {
+    var text = String(raw || "").trim()
+    if (!text) return
+    var parts = text.split(" ")
     if (parts.length > 0) {
       root.uptimeString = Model.formatUptime(parts[0])
     }
@@ -78,6 +72,7 @@ Item {
     if (cfg.options) {
       if (cfg.options.cardSize !== undefined) root.cardSize = cfg.options.cardSize
       if (cfg.options.confirmDestructive !== undefined) root.confirmDestructive = cfg.options.confirmDestructive
+      if (cfg.options.confirmDuration !== undefined) root.confirmDuration = cfg.options.confirmDuration
       if (cfg.options.showBadges !== undefined) root.showBadges = cfg.options.showBadges
       if (cfg.options.highlightShutdown !== undefined) root.highlightShutdown = cfg.options.highlightShutdown
       if (cfg.options.showUptime !== undefined) root.showUptime = cfg.options.showUptime
@@ -97,6 +92,18 @@ Item {
     root.applyConfig(cfg)
   }
 
+  function startConfirmation(index) {
+    root.confirmingIndex = index
+    root.confirmProgress = 1.0
+    confirmAnim.restart()
+  }
+
+  function cancelConfirmation() {
+    confirmAnim.stop()
+    root.confirmingIndex = -1
+    root.confirmProgress = 1.0
+  }
+
   function triggerAction(index) {
     if (index < 0 || index >= root.actions.length) return
     var action = root.actions[index]
@@ -106,9 +113,7 @@ Item {
       if (root.confirmingIndex === index) {
         root.executeAction(action)
       } else {
-        root.confirmingIndex = index
-        root.confirmSeconds = 3
-        confirmTimer.restart()
+        root.startConfirmation(index)
       }
     } else {
       root.executeAction(action)
@@ -122,25 +127,35 @@ Item {
     }
   }
 
-  Timer {
-    id: confirmTimer
-    interval: 1000
-    repeat: true
-    onTriggered: {
-      root.confirmSeconds--
-      if (root.confirmSeconds <= 0) {
-        root.confirmingIndex = -1
-        confirmTimer.stop()
+  NumberAnimation {
+    id: confirmAnim
+    target: root
+    property: "confirmProgress"
+    from: 1.0
+    to: 0.0
+    duration: Math.max(1, root.confirmDuration) * 1000
+    easing.type: Easing.Linear
+    onFinished: {
+      if (root.confirmingIndex >= 0) {
+        root.cancelConfirmation()
       }
     }
   }
 
-  // Watch uptime from Linux /proc
-  FileView {
-    id: uptimeFile
-    path: "/proc/uptime"
-    watchChanges: false
-    onLoaded: root.updateUptime()
+  // Fetch real-time system uptime from kernel without FileView caching
+  Process {
+    id: uptimeProc
+    command: ["cat", "/proc/uptime"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: root.parseUptimeRaw(text)
+    }
+  }
+
+  Component.onCompleted: {
+    if (root.showUptime) {
+      uptimeProc.running = true
+    }
   }
 
   // Watch primary user config file
@@ -200,8 +215,7 @@ Item {
       Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape) {
           if (root.confirmingIndex >= 0) {
-            root.confirmingIndex = -1
-            confirmTimer.stop()
+            root.cancelConfirmation()
           } else {
             root.close()
           }
@@ -325,6 +339,7 @@ Item {
                 readonly property bool isFocused: root.focusedIndex === index
                 readonly property bool isConfirming: root.confirmingIndex === index
                 readonly property bool isHighlighted: root.highlightShutdown && modelData.highlight === true
+                readonly property int remainingSeconds: Math.max(1, Math.ceil(root.confirmProgress * root.confirmDuration))
 
                 readonly property color highlightBg: {
                   if (modelData.highlightColor && String(modelData.highlightColor).length > 0) {
@@ -427,7 +442,7 @@ Item {
                     Text {
                       id: labelText
                       anchors.horizontalCenter: parent.horizontalCenter
-                      text: cardItem.isConfirming ? ("Confirm (" + root.confirmSeconds + "s)") : (modelData.label || "")
+                      text: cardItem.isConfirming ? ("Confirm (" + cardItem.remainingSeconds + "s)") : (modelData.label || "")
                       font.family: Style.font.menuFamily
                       font.pixelSize: 11
                       font.weight: Font.Medium
@@ -439,19 +454,31 @@ Item {
                     }
                   }
 
-                  // Confirmation Progress Bar at the bottom of the card
+                  // Inset Floating Capsule Countdown Progress Bar
                   Rectangle {
+                    id: progressTrack
                     visible: cardItem.isConfirming
                     anchors {
-                      left: parent.left
+                      horizontalCenter: parent.horizontalCenter
                       bottom: parent.bottom
+                      bottomMargin: 7
                     }
+                    width: parent.width - 24
                     height: 3
-                    width: parent.width * (root.confirmSeconds / 3.0)
-                    color: Util.alpha("#ffffff", 0.8)
-                    Behavior on width {
-                      enabled: cardItem.isConfirming && root.confirmSeconds < 3
-                      NumberAnimation { duration: 950; easing.type: Easing.Linear }
+                    radius: 1.5
+                    color: Util.alpha("#000000", 0.25)
+                    clip: true
+
+                    Rectangle {
+                      id: progressFill
+                      anchors {
+                        left: parent.left
+                        top: parent.top
+                        bottom: parent.bottom
+                      }
+                      width: progressTrack.width * Math.max(0.0, Math.min(1.0, root.confirmProgress))
+                      radius: 1.5
+                      color: Util.alpha("#ffffff", 0.95)
                     }
                   }
 

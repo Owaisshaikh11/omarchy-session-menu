@@ -71,6 +71,7 @@ The plugin works out of the box with zero configuration. To customize display pr
   // Display preferences
   "showUptime": true,            // Display user and system uptime chip
   "confirmDestructive": true,    // Require second click or Enter to confirm Logout, Reboot, Shutdown
+  "confirmDuration": 3,          // Countdown duration in seconds (e.g. 2, 3, 5)
   "showBadges": true,            // Show hotkey number badges (1, 2, 3...) on cards
   "highlightShutdown": true,     // Highlight the Shutdown card with theme urgent accent
   "cardSize": 96,                // Width and height of each card in logical pixels (e.g. 72-128)
