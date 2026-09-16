@@ -40,17 +40,16 @@ Item {
     root.cancelConfirmation()
     root.focusedIndex = -1
     if (root.showUptime) {
+      if (uptimeProc.running) uptimeProc.running = false
       uptimeProc.running = true
     }
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
   }
 
   function close() {
-    root.cancelConfirmation()
+    if (!root.opened) return
     root.opened = false
-    if (root.shell && typeof root.shell.hide === "function") {
-      root.shell.hide(root.manifest ? root.manifest.id : "owaiss.session-menu")
-    }
+    root.cancelConfirmation()
   }
 
   function toggle() {
@@ -169,6 +168,12 @@ Item {
     onFileChanged: reload()
   }
 
+  function ensureUserConfig() {
+    try {
+      userConfigFile.setText(Model.sampleConfigJsonc())
+    } catch (e) {}
+  }
+
   // Fallback to legacy config file location if primary not found
   FileView {
     id: legacyConfigFile
@@ -176,7 +181,10 @@ Item {
     watchChanges: true
     printErrors: false
     onLoaded: root.loadConfig(text())
-    onLoadFailed: root.loadDefaultConfig()
+    onLoadFailed: {
+      root.loadDefaultConfig()
+      root.ensureUserConfig()
+    }
     onFileChanged: reload()
   }
 
