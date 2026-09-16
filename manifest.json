@@ -6,6 +6,7 @@
   "author": "Owais Shaikh",
   "license": "MIT",
   "description": "Elegant, theme-aware popout session and power menu for Omarchy with keyboard navigation and bar launcher.",
+  "preview": "assets/preview.png",
   "kinds": [
     "bar-widget",
     "overlay"

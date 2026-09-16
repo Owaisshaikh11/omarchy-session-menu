@@ -2,6 +2,10 @@
 
 An elegant, theme-aware popout session and power menu plugin for [Omarchy](https://omarchy.org), inspired by modern capsule overlay aesthetics.
 
+<p align="center">
+  <img src="assets/preview.png" alt="Session Menu for Omarchy" width="100%" />
+</p>
+
 ---
 
 ## ✨ Features
@@ -20,9 +24,21 @@ An elegant, theme-aware popout session and power menu plugin for [Omarchy](https
   - `←` / `→` or `Tab` / `Shift+Tab` to navigate focus.
   - `Enter` / `Space` to execute focused or confirmed action.
   - `Esc` cancels an active confirmation or dismisses the menu.
-
+- **Smooth Confirmation Countdown**: Destructive actions (Shutdown, Reboot, Logout) trigger a smooth, 60fps floating capsule progress bar with zero border clipping.
 - **Auto-Fallback Keybinding**: Cleanly opens this menu when enabled, and falls back to Omarchy's default system menu when disabled.
 - **Hot-Reloadable Config**: Fully customizable via `~/.config/omarchy/session-menu.jsonc`.
+
+---
+
+## 🎨 Themes & Confirmation
+
+Session Menu adapts dynamically to your active Omarchy theme colors, typography, and wallpaper. Destructive actions feature an inset floating countdown progress bar that animates cleanly within the card.
+
+| Catppuccin Mocha | Tokyo Night |
+| :---: | :---: |
+| ![Catppuccin Mocha](assets/theme-catppuccin.png) | ![Tokyo Night](assets/theme-tokyonight.png) |
+| **Nord** | **Countdown Confirmation** |
+| ![Nord](assets/theme-nord.png) | ![Countdown Confirmation](assets/preview-countdown.png) |
 
 ---
 
