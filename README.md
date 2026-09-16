@@ -1,6 +1,6 @@
 # Session Menu for Omarchy
 
-An elegant, theme-aware popout session and power menu plugin for [Omarchy](https://omarchy.org), inspired by the Noctilia Shell v5 aesthetic.
+An elegant, theme-aware popout session and power menu plugin for [Omarchy](https://omarchy.org), inspired by modern capsule overlay aesthetics.
 
 ---
 
@@ -14,13 +14,13 @@ An elegant, theme-aware popout session and power menu plugin for [Omarchy](https
   - `3`: **Logout** (`omarchy system logout`)
   - `4`: **Reboot** (`omarchy system reboot`)
   - `5`: **Shutdown** (`omarchy system shutdown` — highlighted rightmost card)
-- **Top Bar Launcher**: Adds an interactive power icon (``) to the status bar with native click-and-hold drag reordering.
+- **Top Bar Launcher**: Adds an interactive power icon (``) to the status bar with native placement and drag reordering.
 - **Keyboard Navigation**:
   - Direct numeric shortcuts (`1`, `2`, `3`, `4`, `5`) to trigger actions instantly.
   - `←` / `→` or `Tab` / `Shift+Tab` to navigate focus.
-  - `Enter` / `Space` to execute focused action.
-  - `Esc` or click outside to dismiss.
-- **Safe Confirmations**: Optional inline confirmation step for destructive actions (Logout, Reboot, Shutdown).
+  - `Enter` / `Space` to execute focused or confirmed action.
+  - `Esc` cancels an active confirmation or dismisses the menu.
+
 - **Auto-Fallback Keybinding**: Cleanly opens this menu when enabled, and falls back to Omarchy's default system menu when disabled.
 - **Hot-Reloadable Config**: Fully customizable via `~/.config/omarchy/session-menu.jsonc`.
 
@@ -34,11 +34,10 @@ An elegant, theme-aware popout session and power menu plugin for [Omarchy](https
 omarchy plugin add https://github.com/Owaisshaikh11/omarchy-session-menu.git --enable
 ```
 
-### Local Development / Manual Symlink
+### Local Development / Manual Installation
 
 ```bash
-git clone https://github.com/Owaisshaikh11/omarchy-session-menu.git ~/omarchy-session-menu
-ln -s ~/omarchy-session-menu ~/.config/omarchy/plugins/owaiss.session-menu
+git clone https://github.com/Owaisshaikh11/omarchy-session-menu.git ~/.config/omarchy/plugins/owaiss.session-menu
 omarchy-shell shell rescanPlugins
 omarchy plugin enable owaiss.session-menu --section right
 ```
@@ -47,7 +46,7 @@ omarchy plugin enable owaiss.session-menu --section right
 
 ## ⌨️ Hyprland Keybinding
 
-Add the following to `~/.config/hypr/bindings.lua` to replace `Super + Escape` with automatic fallback:
+Add the following to `~/.config/hypr/bindings.lua` to bind `Super + Escape` with automatic fallback to the default system menu if the plugin is disabled:
 
 ```lua
 -- Rebind SUPER + ESCAPE to Session Menu with automatic fallback
@@ -55,7 +54,7 @@ hl.unbind("SUPER + ESCAPE")
 o.bind("SUPER + ESCAPE", "Session Menu", "bash -c 'grep -q \"owaiss.session-menu\" ~/.config/omarchy/shell.json 2>/dev/null && exec omarchy-shell shell toggle owaiss.session-menu || exec omarchy-menu toggle system'")
 ```
 
-Reload Hyprland:
+Reload Hyprland bindings:
 
 ```bash
 hyprctl reload
@@ -65,75 +64,112 @@ hyprctl reload
 
 ## ⚙️ Customization (`session-menu.jsonc`)
 
-The plugin works out of the box with zero configuration. To add, remove, reorder, or customize actions, create `~/.config/omarchy/session-menu.jsonc`:
+The plugin works out of the box with zero configuration. To customize display preferences or configure actions, create `~/.config/omarchy/session-menu.jsonc`:
 
 ```jsonc
-[
-  {
-    "id": "lock",
-    "label": "Lock",
-    "icon": "",
-    "key": "1",
-    "command": "omarchy system lock",
-    "destructive": false,
-    "highlight": false
-  },
-  {
-    "id": "suspend",
-    "label": "Suspend",
-    "icon": "󰒲",
-    "key": "2",
-    "command": "systemctl suspend",
-    "destructive": false,
-    "highlight": false
-  },
-  {
-    "id": "logout",
-    "label": "Logout",
-    "icon": "󰍃",
-    "key": "3",
-    "command": "omarchy system logout",
-    "destructive": true,
-    "highlight": false
-  },
-  {
-    "id": "reboot",
-    "label": "Reboot",
-    "icon": "󰜉",
-    "key": "4",
-    "command": "omarchy system reboot",
-    "destructive": true,
-    "highlight": false
-  },
-  {
-    "id": "shutdown",
-    "label": "Shutdown",
-    "icon": "",
-    "key": "5",
-    "command": "omarchy system shutdown",
-    "destructive": true,
-    "highlight": true,
-    // Optional custom color overrides:
-    // "highlightColor": "#ea6962",
-    // "highlightTextColor": "#161616"
-  }
-]
+{
+  // Display preferences
+  "showUptime": true,            // Display user and system uptime chip
+  "confirmDestructive": true,    // Require second click or Enter to confirm Logout, Reboot, Shutdown
+  "showBadges": true,            // Show hotkey number badges (1, 2, 3...) on cards
+  "highlightShutdown": true,     // Highlight the Shutdown card with theme urgent accent
+  "cardSize": 96,                // Width and height of each card in logical pixels (e.g. 72-128)
+
+  // Predefined or custom actions list
+  "actions": [
+    {
+      "id": "lock",
+      "label": "Lock",
+      "icon": "",
+      "command": "omarchy system lock",
+      "destructive": false,
+      "enabled": true
+    },
+    {
+      "id": "suspend",
+      "label": "Suspend",
+      "icon": "󰒲",
+      "command": "systemctl suspend",
+      "destructive": false,
+      "enabled": true
+    },
+    {
+      "id": "logout",
+      "label": "Logout",
+      "icon": "󰍃",
+      "command": "omarchy system logout",
+      "destructive": true,
+      "enabled": true
+    },
+    {
+      "id": "reboot",
+      "label": "Reboot",
+      "icon": "󰜉",
+      "command": "omarchy system reboot",
+      "destructive": true,
+      "enabled": true
+    },
+    {
+      "id": "shutdown",
+      "label": "Shutdown",
+      "icon": "",
+      "command": "omarchy system shutdown",
+      "destructive": true,
+      "highlight": true,
+      "enabled": true
+      // Optional custom color overrides:
+      // "highlightColor": "#ea6962",
+      // "highlightTextColor": "#161616"
+    },
+    // Optional additional actions (set "enabled": true to activate):
+    {
+      "id": "hibernate",
+      "label": "Hibernate",
+      "icon": "󰤁",
+      "command": "systemctl hibernate",
+      "destructive": true,
+      "enabled": false
+    },
+    {
+      "id": "uefi",
+      "label": "UEFI",
+      "icon": "󰍜",
+      "command": "systemctl reboot --firmware-setup",
+      "destructive": true,
+      "enabled": false
+    },
+    {
+      "id": "screensaver",
+      "label": "Screensaver",
+      "icon": "󱄄",
+      "command": "omarchy-launch-screensaver force",
+      "destructive": false,
+      "enabled": false
+    },
+    {
+      "id": "reload",
+      "label": "Reload",
+      "icon": "",
+      "command": "hyprctl reload && omarchy restart shell",
+      "destructive": false,
+      "enabled": false
+    }
+  ]
+}
 ```
 
-Changes saved to `session-menu.jsonc` take effect immediately without restarting the shell.
+> [!NOTE]
+> Changes saved to `~/.config/omarchy/session-menu.jsonc` take effect immediately upon saving without restarting the shell.
 
 ---
 
-## 🛠️ Bar Settings
+## 🛠️ Bar Management
 
-Configurable via **Omarchy menu → Setup → Bar**:
+The top bar launcher icon can be moved or toggled using the standard Omarchy CLI:
 
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `cardSize` | integer | `96` | Width and height of each action card in logical pixels. |
-| `confirmDestructive` | boolean | `true` | Require pressing again or clicking to confirm destructive actions. |
-| `showBadges` | boolean | `true` | Show hotkey number badges (1, 2, 3...) on cards. |
-| `highlightShutdown` | boolean | `true` | Highlight the Shutdown card with theme accent styling. |
+- **Move widget**: `omarchy bar move owaiss.session-menu --section right`
+- **Enable widget**: `omarchy plugin enable owaiss.session-menu --section right`
+- **Disable widget**: `omarchy plugin disable owaiss.session-menu`
 
 ---
 

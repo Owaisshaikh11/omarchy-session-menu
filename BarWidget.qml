@@ -19,7 +19,9 @@ BarWidget {
     tooltipText: "Session Menu"
     onPressed: function(btn) {
       if (!root.bar) return
-      root.bar.run("omarchy-shell shell toggle owaiss.session-menu")
+      if (btn === Qt.LeftButton || btn === undefined) {
+        root.bar.run("omarchy-shell shell toggle owaiss.session-menu")
+      }
     }
   }
 }
