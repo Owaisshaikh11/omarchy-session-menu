@@ -187,6 +187,7 @@ function parseConfig(rawJsonc) {
   var stripped = stripJsonc(rawJsonc).trim()
   var defaults = defaultActions()
   var defaultOptions = {
+    showPowerButton: true,
     showUptime: true,
     confirmDestructive: true,
     confirmDuration: 3,
@@ -219,7 +220,15 @@ function parseConfig(rawJsonc) {
     durationVal = Math.max(1, Math.min(30, Number(parsed.confirmSeconds) || 3))
   }
 
+  var showBtn = true
+  if (parsed.showPowerButton !== undefined) {
+    showBtn = Boolean(parsed.showPowerButton)
+  } else if (parsed.showBarWidget !== undefined) {
+    showBtn = Boolean(parsed.showBarWidget)
+  }
+
   var options = {
+    showPowerButton: showBtn,
     showUptime: parsed.showUptime !== undefined ? parsed.showUptime : true,
     confirmDestructive: parsed.confirmDestructive !== undefined ? parsed.confirmDestructive : true,
     confirmDuration: durationVal,
@@ -273,6 +282,7 @@ function sampleConfigJsonc() {
     '// Changes to this file take effect instantly without restarting the shell.',
     '{',
     '  // Optional display preferences',
+    '  "showPowerButton": true,       // Show or hide the top bar power launcher icon',
     '  "showUptime": true,',
     '  "confirmDestructive": true,',
     '  "confirmDuration": 3,  // Countdown duration in seconds (e.g. 2, 3, 5)',

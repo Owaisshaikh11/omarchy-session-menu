@@ -1,6 +1,6 @@
 # Session Menu for Omarchy
 
-An elegant, theme-aware popout session and power menu plugin for [Omarchy](https://omarchy.org), inspired by modern capsule overlay aesthetics.
+A simple, theme-aware popout session and power menu plugin for [Omarchy](https://omarchy.org), inspired by [Noctalia Shell](https://github.com/noctalia-dev/noctalia).
 
 <p align="center">
   <img src="assets/preview.png" alt="Session Menu for Omarchy" width="100%" />
@@ -17,28 +17,27 @@ An elegant, theme-aware popout session and power menu plugin for [Omarchy](https
   - `2`: **Suspend** (`systemctl suspend`)
   - `3`: **Logout** (`omarchy system logout`)
   - `4`: **Reboot** (`omarchy system reboot`)
-  - `5`: **Shutdown** (`omarchy system shutdown` — highlighted rightmost card)
+  - `5`: **Shutdown** (`omarchy system shutdown`)
 - **Top Bar Launcher**: Adds an interactive power icon (``) to the status bar with native placement and drag reordering.
 - **Keyboard Navigation**:
   - Direct numeric shortcuts (`1`, `2`, `3`, `4`, `5`) to trigger actions instantly.
   - `←` / `→` or `Tab` / `Shift+Tab` to navigate focus.
   - `Enter` / `Space` to execute focused or confirmed action.
   - `Esc` cancels an active confirmation or dismisses the menu.
-- **Smooth Confirmation Countdown**: Destructive actions (Shutdown, Reboot, Logout) trigger a smooth, 60fps floating capsule progress bar with zero border clipping.
-- **Auto-Fallback Keybinding**: Cleanly opens this menu when enabled, and falls back to Omarchy's default system menu when disabled.
+- **Auto-Fallback Keybinding**: Cleanly opens this menu with (SUPER + ESC) when enabled, and falls back to Omarchy's default system menu when disabled.
 - **Hot-Reloadable Config**: Fully customizable via `~/.config/omarchy/session-menu.jsonc`.
 
 ---
 
-## 🎨 Themes & Confirmation
+## 🎨 Themes & Custom Options
 
-Session Menu adapts dynamically to your active Omarchy theme colors, typography, and wallpaper. Destructive actions feature an inset floating countdown progress bar that animates cleanly within the card.
+Session Menu adapts dynamically to your active Omarchy theme colors, typography, and wallpaper while supporting custom action combinations and smooth countdown confirmations.
 
-| Catppuccin Mocha | Tokyo Night |
+| Extended Layout (UEFI & Screensaver) | Smooth Countdown Confirmation |
 | :---: | :---: |
-| ![Catppuccin Mocha](assets/theme-catppuccin.png) | ![Tokyo Night](assets/theme-tokyonight.png) |
-| **Nord** | **Countdown Confirmation** |
-| ![Nord](assets/theme-nord.png) | ![Countdown Confirmation](assets/preview-countdown.png) |
+| ![Extended Options](assets/options-extended.png) | ![Countdown Confirmation](assets/preview-countdown.png) |
+| **Maintenance Setup (Hibernate & Reload)** | **Minimal 4-Action Layout** |
+| ![Maintenance Setup](assets/options-maintenance.png) | ![Minimal Layout](assets/options-minimal.png) |
 
 ---
 
@@ -85,6 +84,7 @@ The plugin works out of the box with zero configuration. To customize display pr
 ```jsonc
 {
   // Display preferences
+  "showPowerButton": true,       // Show or hide the top bar power launcher icon
   "showUptime": true,            // Display user and system uptime chip
   "confirmDestructive": true,    // Require second click or Enter to confirm Logout, Reboot, Shutdown
   "confirmDuration": 3,          // Countdown duration in seconds (e.g. 2, 3, 5)
